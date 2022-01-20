@@ -20,9 +20,9 @@ class Wallet
     private $id;
 
     /**
-     * @ORM\Column(type="integer", precision=2 ,options={"default" : 0})
+     * @ORM\Column(type="integer", precision=2)
      */
-    private $balance;
+    private $balance = 0;
 
     /**
      * @ORM\OneToMany(targetEntity=Transaction::class, mappedBy="wallet", orphanRemoval=true)
