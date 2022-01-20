@@ -20,7 +20,7 @@ class Wallet
     private $id;
 
     /**
-     * @ORM\Column(type="integer", precision=2)
+     * @ORM\Column(type="float", precision=2)
      */
     private $balance = 0;
 
@@ -39,12 +39,12 @@ class Wallet
         return $this->id;
     }
 
-    public function getBalance(): ?int
+    public function getBalance(): ?float
     {
         return $this->balance;
     }
 
-    public function setBalance(?int $balance): self
+    public function setBalance(?float $balance): self
     {
         $this->balance = $balance;
 
