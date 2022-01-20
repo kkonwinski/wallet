@@ -19,7 +19,7 @@ class Transaction
     private $id;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="float", precision=2)
      */
     private $amount;
 
@@ -38,6 +38,11 @@ class Transaction
      * @ORM\ManyToOne(targetEntity=TypeTransaction::class, inversedBy="transaction")
      */
     private $typeTransaction;
+
+    /**
+     * @ORM\Column(type="float", precision=2 ,nullable=true)
+     */
+    private $amountBefore;
 
     public function getId(): ?int
     {
@@ -98,6 +103,18 @@ class Transaction
     public function setTypeTransaction(?TypeTransaction $typeTransaction): self
     {
         $this->typeTransaction = $typeTransaction;
+
+        return $this;
+    }
+
+    public function getAmountBefore(): ?float
+    {
+        return $this->amountBefore;
+    }
+
+    public function setAmountBefore(?float $amountBefore): self
+    {
+        $this->amountBefore = $amountBefore;
 
         return $this;
     }

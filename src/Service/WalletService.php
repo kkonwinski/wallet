@@ -6,7 +6,7 @@ use App\Entity\TypeTransaction;
 use App\Entity\Wallet;
 use Doctrine\Persistence\ManagerRegistry;
 
-class WalletService
+class WalletService implements WalletServiceInterface
 {
     private ManagerRegistry $doctrine;
 
@@ -15,21 +15,27 @@ class WalletService
         $this->doctrine = $doctrine;
     }
 
-    public function addToWallet(int $walletId, float $amount, string $transactionType)
+    public function updateWallet(int $walletId, float $amount, string $transactionType): array
     {
         $wallet = $this->findWallet($walletId);
         $type = $this->findTransactionType($transactionType);
         $recalculatedWalletBalance = $this->recalculateWallet($wallet, $amount, $type);
+        $amountBeforeTransaction = $wallet->getBalance();
+        $wallet->setBalance($recalculatedWalletBalance);
+        return array($wallet, $type, $amountBeforeTransaction);
     }
 
 
     public function recalculateWallet(Wallet $wallet, $amount, TypeTransaction $typeTransaction): float
     {
-        if ($wallet > 0) {
+
+        if ($wallet->getBalance() > 0) {
             if ($typeTransaction->getName() === "payment") {
                 return $wallet->getBalance() + $amount;
             }
         }
+
+
         if ($wallet->getBalance() >= $amount) {
             return $wallet->getBalance() - $amount;
         } else {
