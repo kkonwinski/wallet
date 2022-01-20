@@ -54,9 +54,9 @@ class WalletController extends AbstractController
         $amount = $this->getDataFromRequest($request, 'amount');
         $transactionType = $this->getDataFromRequest($request, 'transactionType');
         $newTransactionArr = $this->walletService->updateWallet($walletId, $amount, $transactionType);
-
         $transaction = new Transaction();
         $transaction->setAmount($amount);
+        $transaction->setAmountBefore($newTransactionArr[2]);
         $transaction->setTypeTransaction($newTransactionArr[1]);
         $transaction->setWallet($newTransactionArr[0]);
 

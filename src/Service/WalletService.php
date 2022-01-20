@@ -20,8 +20,9 @@ class WalletService implements WalletServiceInterface
         $wallet = $this->findWallet($walletId);
         $type = $this->findTransactionType($transactionType);
         $recalculatedWalletBalance = $this->recalculateWallet($wallet, $amount, $type);
+        $amountBeforeTransaction = $wallet->getBalance();
         $wallet->setBalance($recalculatedWalletBalance);
-        return array($wallet, $type);
+        return array($wallet, $type, $amountBeforeTransaction);
     }
 
 

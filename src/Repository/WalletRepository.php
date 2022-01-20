@@ -19,22 +19,23 @@ class WalletRepository extends ServiceEntityRepository
         parent::__construct($registry, Wallet::class);
     }
 
-    // /**
-    //  * @return Wallet[] Returns an array of Wallet objects
-    //  */
-    /*
-    public function findByExampleField($value)
+     /**
+      * @return Wallet[] Returns an array of Wallet transactions
+      */
+    public function findWalletTransactions($value): array
     {
         return $this->createQueryBuilder('w')
-            ->andWhere('w.exampleField = :val')
+            ->select('w.balance', 't.amount', 't.amountBefore', 't.createdAt', 'tt.name')
+            ->leftJoin('w.transactions', 't')
+            ->leftJoin('t.typeTransaction', 'tt')
+            ->andWhere('w.id=:val')
             ->setParameter('val', $value)
-            ->orderBy('w.id', 'ASC')
-            ->setMaxResults(10)
+            ->orderBy('t.createdAt', 'DESC')
+//            ->setMaxResults(10)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getArrayResult();
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Wallet
