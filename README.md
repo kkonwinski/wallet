@@ -31,6 +31,10 @@ curl --location --request POST 'http://192.168.2.2/wallet/updateWallet' \
   --form 'amount="1"' \
   --form 'transactionType="salary"'
   ```
+- show funds on wallet 
+```
+curl --location --request GET 'http://192.168.2.2/wallet/showFundsWallet/1
+```
 ## Command to generate CSV report specify wallet:
 ```
 bin/console transaction:generate-report

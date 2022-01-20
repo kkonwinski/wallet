@@ -81,4 +81,30 @@ class WalletController extends AbstractController
         }
         throw new Exception(new JsonResponse(sprintf("Missing data %s", $data), Response::HTTP_BAD_REQUEST));
     }
+
+    /**
+     * @Route("/showFundsWallet/{wid}", name="show_funds_wallet",methods={"GET"})
+     * @param $wid
+     * @return JsonResponse
+     */
+    public function showFundsInWallet($wid): JsonResponse
+    {
+        $wallet = $this->doctrine->getRepository(Wallet::class)->findBy(array('id' => (int)$wid));
+
+        if (!$wallet) {
+            throw $this->createNotFoundException(
+                'No wallet found for id ' . $wid
+            );
+        }
+        return new JsonResponse(
+            sprintf(
+                'Funds on wallet id:%s are %s',
+                $wid,
+                $wallet[0]->getBalance()
+            ),
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
 }
