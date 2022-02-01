@@ -6,11 +6,12 @@ use App\Entity\TypeTransaction;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class TypeTracactionFixtures extends Fixture
+class TypeTransactionFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $transactionTypes = ['payment', 'salary'];
+        $transactionTypes = array('payment', 'salary');
+
         foreach ($transactionTypes as $transactionType) {
             $type = new TypeTransaction();
             $type->setName($transactionType);

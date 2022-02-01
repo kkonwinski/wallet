@@ -4,8 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Transaction;
 use App\Entity\Wallet;
+use App\Repository\WalletRepository;
 use App\Service\WalletService;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\InputBag;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/wallet")
@@ -21,25 +24,31 @@ class WalletController extends AbstractController
 {
 
     private WalletService $walletService;
-    private ManagerRegistry $doctrine;
+    private EntityManagerInterface $entityManager;
+    private ValidatorInterface $validator;
 
-    public function __construct(WalletService $walletService, ManagerRegistry $doctrine)
+
+    public function __construct(
+        WalletService          $walletService,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface     $validator
+    )
     {
         $this->walletService = $walletService;
-        $this->doctrine = $doctrine;
+        $this->entityManager = $entityManager;
+        $this->validator = $validator;
     }
 
     /**
      * @Route("/create", name="create_wallet",methods={"POST"})
-     * @return Response
+     * @return JsonResponse
      */
-    public function create(): Response
+    public function create(): JsonResponse
     {
-        $entityManager = $this->doctrine->getManager();
         $wallet = new Wallet();
-        $entityManager->persist($wallet);
-        $entityManager->flush();
-        return new JsonResponse('New wallet created', Response::HTTP_OK, [], true);
+        $this->entityManager->persist($wallet);
+        $this->entityManager->flush();
+        return new JsonResponse("New wallet created", Response::HTTP_OK, array(), true);
     }
 
     /**
@@ -50,21 +59,36 @@ class WalletController extends AbstractController
      */
     public function updateWallet(Request $request): JsonResponse
     {
-        $walletId = $this->getDataFromRequest($request, 'walletId');
-        $amount = $this->getDataFromRequest($request, 'amount');
-        $transactionType = $this->getDataFromRequest($request, 'transactionType');
-        $newTransactionArr = $this->walletService->updateWallet($walletId, $amount, $transactionType);
+
         $transaction = new Transaction();
+        //TODO walidacja do poprawy
+// $errors = $this->yourMethod($request->request);
+//        if (count($errors) > 0) {
+//            /*
+//             * Uses a __toString method on the $errors variable which is a
+//             * ConstraintViolationList object. This gives us a nice string
+//             * for debugging.
+//             */
+//            $errorsString = (string) $errors;
+//
+//            return new Response($errorsString);
+//        }
+
+        $walletId = $this->getDataFromRequest($request, "wallet");
+        $amount = $this->getDataFromRequest($request, "amount");
+        $transactionType = $this->getDataFromRequest($request, "typeTransaction");
+        $newTransactionArr = $this->walletService->updateWallet((int)$walletId, $amount, $transactionType);
+
         $transaction->setAmount($amount);
         $transaction->setAmountBefore($newTransactionArr[2]);
         $transaction->setTypeTransaction($newTransactionArr[1]);
         $transaction->setWallet($newTransactionArr[0]);
 
-        $entityManager = $this->doctrine->getManager();
-        $entityManager->persist($transaction);
-        $entityManager->flush();
 
-        return new JsonResponse('Wallet updated', Response::HTTP_OK, [], true);
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
+
+        return new JsonResponse("Wallet updated", Response::HTTP_OK, array(), true);
     }
 
     /**
@@ -75,36 +99,49 @@ class WalletController extends AbstractController
      */
     private function getDataFromRequest(Request $request, $data)
     {
-
-        if ($request->request->get($data)) {
-            return $request->request->get($data);
-        }
-        throw new Exception(new JsonResponse(sprintf("Missing data %s", $data), Response::HTTP_BAD_REQUEST));
+        return $request->request->get($data);
     }
 
     /**
      * @Route("/showFundsWallet/{wid}", name="show_funds_wallet",methods={"GET"})
      * @param $wid
+     * @param WalletRepository $walletRepository
      * @return JsonResponse
      */
-    public function showFundsInWallet($wid): JsonResponse
+    public function showFundsInWallet($wid, WalletRepository $walletRepository): JsonResponse
     {
-        $wallet = $this->doctrine->getRepository(Wallet::class)->findBy(array('id' => (int)$wid));
+        $wallet = $walletRepository->findOneBy(array("id" => (int)$wid));
 
         if (!$wallet) {
             throw $this->createNotFoundException(
-                'No wallet found for id ' . $wid
+                "No wallet found for id " . $wid
             );
         }
         return new JsonResponse(
             sprintf(
-                'Funds on wallet id:%s are %s',
+                "Funds on wallet id:%s are %s",
                 $wid,
                 $wallet[0]->getBalance()
             ),
             Response::HTTP_OK,
-            [],
+            array(),
             true
         );
     }
+
+//
+//    public function yourMethod($postData) {
+//        // you can also create validator like that
+//        // $validator = Validation::createValidator();
+//        $constraints = new Assert\Collection([
+//            'wallet' => [
+//                new Assert\NotBlank()
+//            ],
+//            'typeTransaction' => [
+//                new Assert\NotBlank(),
+//            ],
+//        ]);
+//
+//        return $this->validator->validate($postData, $constraints);
+//    }
 }

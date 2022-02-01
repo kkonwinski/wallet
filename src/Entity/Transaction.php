@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TransactionRepository::class)
@@ -16,33 +17,34 @@ class Transaction
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="float", precision=2)
      */
-    private $amount;
+    private ?float $amount;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $createdAt;
+    private ?\DateTime $createdAt;
 
     /**
      * @ORM\ManyToOne(targetEntity=Wallet::class, inversedBy="transactions")
      * @ORM\JoinColumn(nullable=false)
+
      */
-    private $wallet;
+    private ?Wallet $wallet;
 
     /**
      * @ORM\ManyToOne(targetEntity=TypeTransaction::class, inversedBy="transaction")
      */
-    private $typeTransaction;
+    private ?TypeTransaction $typeTransaction;
 
     /**
      * @ORM\Column(type="float", precision=2 ,nullable=true)
      */
-    private $amountBefore;
+    private ?float $amountBefore;
 
     public function getId(): ?int
     {

@@ -14,20 +14,6 @@ services:
       MYSQL_PASSWORD: wallet
     ports:
       - '9906:3306'
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: wallet_phpmyadmin
-    links:
-      - mysql
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    networks:
-      default:
-        ipv4_address: 192.168.2.4
-    ports:
-      - "81:80"
 
   web:
     build: ./.docker
@@ -43,15 +29,6 @@ services:
     depends_on:
       - 'mysql'
 
-  mailhog:
-    image: mailhog/mailhog
-    container_name: wallet_mailhog
-    ports:
-      - 1025:1025
-      - 8025:8025
-    networks:
-      default:
-        ipv4_address: 192.168.2.5
 
 networks:
   default:
